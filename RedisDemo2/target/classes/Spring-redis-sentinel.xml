@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"  
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"  
+    xmlns:aop="http://www.springframework.org/schema/aop"  
+    xsi:schemaLocation="  
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd    
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">  
+  
+      <!-- scanner redis properties  --> 
+    <context:property-placeholder location="classpath:redis.properties"/> 
+  
+  
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">  
+        <property name="maxTotal" value="2048" />  
+        <property name="maxIdle" value="200" />  
+        <property name="numTestsPerEvictionRun" value="1024" />  
+        <property name="timeBetweenEvictionRunsMillis" value="30000" />  
+        <property name="minEvictableIdleTimeMillis" value="-1" />  
+        <property name="softMinEvictableIdleTimeMillis" value="10000" />  
+        <property name="maxWaitMillis" value="1500" />  
+        <property name="testOnBorrow" value="true" />  
+        <property name="testWhileIdle" value="true" />  
+        <property name="testOnReturn" value="false" />  
+        <property name="jmxEnabled" value="true" />  
+        <property name="blockWhenExhausted" value="false" />  
+    </bean>  
+  
+    <bean id="redisSentinelConfiguration"  
+        class="org.springframework.data.redis.connection.RedisSentinelConfiguration">  
+        <property name="master">  
+            <bean class="org.springframework.data.redis.connection.RedisNode">  
+                <property name="name" value="mymaster">  
+                </property>  
+            </bean>  
+        </property>  
+        <property name="sentinels">  
+            <set>  
+                <bean class="org.springframework.data.redis.connection.RedisNode">  
+                    <constructor-arg name="host" value="172.16.12.211" />  
+                    <constructor-arg name="port" value="26379" />  
+                </bean>  
+                <!-- <bean class="org.springframework.data.redis.connection.RedisNode">  
+                    <constructor-arg name="host" value="192.168.125.129" />  
+                    <constructor-arg name="port" value="26379" />  
+                </bean>  
+                <bean class="org.springframework.data.redis.connection.RedisNode ">  
+                    <constructor-arg name="host" value="192.168.125.130" />  
+                    <constructor-arg name="port" value="26379" />  
+                </bean>   -->
+            </set>  
+        </property>  
+    </bean>  
+    <bean id="redisConnectionFactory"  
+        class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"  
+        p:password="123456">  
+        <constructor-arg name="sentinelConfig" ref="redisSentinelConfiguration"></constructor-arg>  
+        <constructor-arg name="poolConfig" ref="jedisPoolConfig"></constructor-arg>  
+    </bean>  
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">  
+    <!--如果不配置Serializer，那么存储的时候智能使用String，如果用User类型存储，那么会提示错误User can't cast to String！！！-->
+        <property name="connectionFactory" ref="redisConnectionFactory" />  
+        <property name="keySerializer">
+			<bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+		</property>
+		<property name="valueSerializer">
+			<bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+			<!-- <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" /> -->
+		</property>
+    </bean>  
+</beans> 
