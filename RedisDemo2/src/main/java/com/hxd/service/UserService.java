@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.hxd.dao.Hdao;
+import com.hxd.dao.common.HashCacheable;
 import com.hxd.dao.common.TestInterface;
 import com.hxd.entry.User;
 
@@ -38,12 +39,22 @@ public class UserService {
 		list.add(map);
 		return list;
 	}*/
-	
-	@TestInterface(expire=120,entryFlag=true)
+	@Cacheable(value="common",key="1")
+	//@TestInterface(expire=120,entryFlag=true)
 	public User save(User user) {
 		//hdao.save(user);
 		System.out.println("----数据库取值中----");
 		return user;
 	}
+	public User save2(User user) {
+		return save(user);
+	}
+	
+/*	@HashCacheable(fieldKey = "#user.id", key = "用户信息")
+	public User save(User user) {
+		//hdao.save(user);
+		System.out.println("----数据库取值中----");
+		return user;
+	}*/
 	
 }

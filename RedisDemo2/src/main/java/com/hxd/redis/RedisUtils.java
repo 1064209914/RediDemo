@@ -5,7 +5,11 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 @Component
 public class RedisUtils {
@@ -16,6 +20,15 @@ public class RedisUtils {
 	private  RedisTemplate redisTemplate;*/
 	 @Resource(name = "redisTemplate")
 	 private ValueOperations<String, Object> vOps;
+	 @Resource(name = "redisTemplate")
+	 private ListOperations<String, Object> listOps;
+	 @Resource(name = "redisTemplate")
+	 private SetOperations<String, Object> setOps;
+	 @Resource(name = "redisTemplate")
+	 private ZSetOperations<String, Object> zSetOps;
+	 @Resource(name = "redisTemplate")
+	 private HashOperations<String,String, Object> hashOps;
+	 
 
 	/**
 	 * 根据key获取缓存中的值
@@ -23,7 +36,6 @@ public class RedisUtils {
 	 * @return
 	 */
 	public Object get(String key) {
-		// ValueOperations<String, Object> valueOper=redisTemplate.opsForValue();
 		 Object value=vOps.get(key);
 		 return value;
 	}
@@ -34,7 +46,6 @@ public class RedisUtils {
 	 * @return 
 	 */
 	public void set(String key,Object value) {
-		//ValueOperations<String, Object> valueOper=redisTemplate.opsForValue();
 		vOps.set(key, value);
 	}
 	/**
@@ -45,7 +56,6 @@ public class RedisUtils {
 	 * @param unit 失效时间的单位
 	 */
 	public void set(String key,Object value,long timeout,TimeUnit unit) {
-		//ValueOperations<String, Object> valueOper=redisTemplate.opsForValue();
 		vOps.set(key, value, timeout, unit);;
 	}
 	
